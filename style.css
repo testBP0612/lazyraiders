@@ -50,6 +50,11 @@ tr:hover {
     color: #121212; /* dark text */
 }
 
+td.zero {
+    background-color: #121212; /* dark background */
+    color: #a70303; /* red text */
+}
+
 @media (max-width: 600px) {
     table {
         font-size: 1rem; /* adjust font size for smaller screens */

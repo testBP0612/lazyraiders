@@ -1,116 +1,195 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Lazyraiders</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
     <h1>Lazyraiders - v1.1.1</h1>
     <table>
-        <thead>
-            <tr>
-                <th>character</th>
-                <th>item level</th>
-                <th>tier piece(s)</th>
-                <th>key</th>
-                <th>run date</th>
-            </tr>
-        </thead>
-        <tbody id="raiderio-data">
-        </tbody>
+      <thead>
+        <tr>
+          <th>character</th>
+          <th>item level</th>
+          <th>tier piece(s)</th>
+          <th>本周最高M+</th>
+          <th>本周場次</th>
+          <th>上周場次</th>
+          <th>run date</th>
+        </tr>
+      </thead>
+      <tbody id="raiderio-data"></tbody>
     </table>
 
     <script>
-        fetch('players.txt')
-            .then(response => response.text())
-            .then(text => {
-                const players = text.trim().split('\n');
-                console.log('Players:', players);
-                const promises = players.map(player => {
-                    const [name, realm] = player.split('-');
-                    const url = `https://raider.io/api/v1/characters/profile?region=tw&realm=${realm}&name=${name}&fields=mythic_plus_weekly_highest_level_runs,gear`;
+      // 配置
+      const config = {
+        playersFile: 'players.txt',
+        apiBaseUrl: 'https://raider.io/api/v1/characters/profile',
+        region: 'tw',
+        fields: 'mythic_plus_weekly_highest_level_runs,mythic_plus_previous_weekly_highest_level_runs,gear',
+        tierSlots: ['chest', 'hands', 'head', 'legs', 'shoulder'],
+        timezone: 'Asia/Taipei', // 台灣時區
+      };
 
-                    return fetch(url)
-                        .then(response => response.json())
-                        .then(json => {
-                            const run = json.mythic_plus_weekly_highest_level_runs ? json.mythic_plus_weekly_highest_level_runs[0] : null;
-                            const gear = json.gear;
+      // 解析玩家文本
+      const parsePlayersList = (text) => text.trim().split('\n');
 
-                            // Check if gear is defined
-                            if (!gear) {
-                                console.warn(`Gear is undefined for ${name}`);
-                                return null;
-                            }
+      // 從玩家字串中提取名稱和伺服器
+      const extractPlayerInfo = (playerString) => {
+        const [name, realm] = playerString.split('-');
+        return { name, realm };
+      };
 
-                            // Log the gear items to understand their structure
-                            console.log(`Gear items for ${name}:`, gear.items);
+      // 建立API請求URL
+      const buildApiUrl = ({ name, realm }) => {
+        const url = new URL(config.apiBaseUrl);
+        url.searchParams.append('region', config.region);
+        url.searchParams.append('realm', realm);
+        url.searchParams.append('name', name);
+        url.searchParams.append('fields', config.fields);
+        return url.toString();
+      };
 
-                            // Count tier pieces from specific items
-                            const tierPieces = {};
-                            const validItems = ['chest', 'hands', 'head', 'legs', 'shoulder'];
-                            validItems.forEach(slot => {
-                                if (gear.items && gear.items[slot] && gear.items[slot].tier && gear.items[slot].tier !== 999) {
-                                    const item = gear.items[slot];
-                                    tierPieces[item.tier] = (tierPieces[item.tier] || 0) + 1;
-                                }
-                            });
+      // 計算裝備的階層件數
+      const countTierPieces = (items) => {
+        if (!items) return {};
 
-                            return {
-                                name,
-                                ilvl: gear && gear.item_level_equipped ? Math.round(gear.item_level_equipped) : null,
-                                key: run ? run.mythic_level : 'n/a',
-                                time: run ? new Date(run.completed_at).toISOString().split('T')[0] : 'n/a',
-                                tierPieces
-                            };
-                        })
-                        .catch(error => {
-                            console.error('Error fetching data for player:', name, error);
-                            return null;
-                        });
-                });
+        return config.tierSlots.reduce((acc, slot) => {
+          if (items[slot] && items[slot].tier && items[slot].tier !== 999) {
+            const tier = items[slot].tier;
+            acc[tier] = (acc[tier] || 0) + 1;
+          }
+          return acc;
+        }, {});
+      };
 
-                Promise.all(promises).then(results => {
-                    console.log('Results:', results);
-                    const validResults = results.filter(result => result !== null);
-                    const sortedResults = validResults.sort((a, b) => (a.ilvl !== null ? a.ilvl : Infinity) - (b.ilvl !== null ? b.ilvl : Infinity));
-                    const tbody = document.getElementById('raiderio-data');
+      // 轉換UTC時間到台灣時區
+      const convertToTaiwanTime = (utcDateString) => {
+        if (!utcDateString) return 'n/a';
 
-                    sortedResults.forEach(result => {
-                        const tr = document.createElement('tr');
+        const date = new Date(utcDateString);
+        return new Intl.DateTimeFormat('zh-TW', {
+          timeZone: config.timezone,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(date);
+      };
 
-                        const nameTd = document.createElement('td');
-                        nameTd.textContent = result.name;
-                        tr.appendChild(nameTd);
+      // 從API回應轉換為所需的玩家資料結構
+      const transformPlayerData = (json, playerName) => {
+        const currentRuns = json.mythic_plus_weekly_highest_level_runs || [];
+        const previousRuns = json.mythic_plus_previous_weekly_highest_level_runs || [];
+        const highestCurrentRun = currentRuns[0] || null;
+        const gear = json.gear || {};
 
-                        const ilvlTd = document.createElement('td');
-                        ilvlTd.textContent = result.ilvl !== null ? result.ilvl : 'n/a';
-                        tr.appendChild(ilvlTd);
+        return {
+          name: playerName,
+          ilvl: gear.item_level_equipped ? Math.round(gear.item_level_equipped) : null,
+          key: highestCurrentRun ? highestCurrentRun.mythic_level : 'n/a',
+          currentRunsCount: currentRuns.length >= 10 ? '10+' : currentRuns.length,
+          previousRunsCount: previousRuns.length >= 10 ? '10+' : previousRuns.length,
+          time: highestCurrentRun ? convertToTaiwanTime(highestCurrentRun.completed_at) : 'n/a',
+          tierPieces: countTierPieces(gear.items || {}),
+        };
+      };
 
-                        // Display tier pieces
-                        const tierTd = document.createElement('td');
-                        const tierText = Object.entries(result.tierPieces).map(([tier, count]) => `${tier} × ${count}`).join(', ');
-                        tierTd.textContent = tierText || 'n/a';
-                        tr.appendChild(tierTd);
+      // 格式化階層件數為顯示文字
+      const formatTierPieces = (tierPieces) => {
+        return (
+          Object.entries(tierPieces)
+            .map(([tier, count]) => `${tier} × ${count}`)
+            .join(', ') || 'n/a'
+        );
+      };
 
-                        const keyTd = document.createElement('td');
-                        keyTd.textContent = result.key;
-                        tr.appendChild(keyTd);
+      // 依照裝等排序玩家資料
+      const sortPlayersByItemLevel = (players) => {
+        return [...players].sort((a, b) => {
+          const aIlvl = a.ilvl !== null ? a.ilvl : Infinity;
+          const bIlvl = b.ilvl !== null ? b.ilvl : Infinity;
+          return aIlvl - bIlvl;
+        });
+      };
 
-                        const timeTd = document.createElement('td');
-                        timeTd.textContent = result.time;
-                        tr.appendChild(timeTd);
+      // 建立表格列
+      const createTableRow = (player) => {
+        const tr = document.createElement('tr');
 
-                        tbody.appendChild(tr);
-                    });
-                }).catch(error => {
-                    console.error('Error resolving promises:', error);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching players.txt:', error);
-            });
+        const createCell = (content, className = '') => {
+          const td = document.createElement('td');
+          td.textContent = content;
+          if (className) {
+            td.className = className;
+          }
+          return td;
+        };
+
+        tr.appendChild(createCell(player.name));
+        tr.appendChild(createCell(player.ilvl !== null ? player.ilvl : 'n/a'));
+        tr.appendChild(createCell(formatTierPieces(player.tierPieces)));
+        tr.appendChild(createCell(player.key));
+        tr.appendChild(createCell(player.currentRunsCount, player.currentRunsCount === 0 ? 'zero' : ''));
+        tr.appendChild(createCell(player.previousRunsCount, player.previousRunsCount === 0 ? 'zero' : ''));
+        tr.appendChild(createCell(player.time));
+
+        return tr;
+      };
+
+      // 渲染表格
+      const renderTable = (players) => {
+        const tbody = document.getElementById('raiderio-data');
+        tbody.innerHTML = '';
+
+        players.map(createTableRow).forEach((row) => tbody.appendChild(row));
+      };
+
+      // 獲取玩家資料
+      const fetchPlayerData = async (player) => {
+        try {
+          const { name } = player;
+          const url = buildApiUrl(player);
+          const response = await fetch(url);
+          const json = await response.json();
+          return transformPlayerData(json, name);
+        } catch (error) {
+          console.error(`Error fetching data for player: ${player.name}`, error);
+          return null;
+        }
+      };
+
+      // 主要流程控制函數
+      const main = async () => {
+        try {
+          // 1. 獲取玩家列表
+          const playersResponse = await fetch(config.playersFile);
+          const playersText = await playersResponse.text();
+          const playersList = parsePlayersList(playersText);
+
+          // 2. 轉換為玩家物件
+          const players = playersList.map(extractPlayerInfo);
+
+          // 3. 獲取每個玩家的資料
+          const playersData = await Promise.all(players.map(fetchPlayerData));
+
+          // 4. 過濾無效資料
+          const validPlayersData = playersData.filter((player) => player !== null);
+
+          // 5. 排序並渲染
+          const sortedPlayersData = sortPlayersByItemLevel(validPlayersData);
+          renderTable(sortedPlayersData);
+        } catch (error) {
+          console.error('Error in main process:', error);
+        }
+      };
+
+      // 啟動應用程式
+      window.addEventListener('DOMContentLoaded', main);
     </script>
-</body>
+  </body>
 </html>
