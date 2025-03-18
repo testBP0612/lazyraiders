@@ -1,66 +1,221 @@
-/* Add Google Fonts Link */
-@import url('https://fonts.googleapis.com/css2?family=Iansui&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap');
+
+:root {
+  --wow-dark-blue: #0a1423;
+  --wow-mid-blue: #1a3653;
+  --wow-light-blue: #2d527c;
+  --wow-gold: #c8aa6e;
+  --wow-light-gold: #f8d999;
+  --wow-stone: #596869;
+  --wow-dark-stone: #2d3436;
+  --wow-alliance: #0078ff;
+  --wow-horde: #b30000;
+  --wow-highlight: #00aeff;
+  --wow-dark-text: #0a1423;
+  --wow-light-text: #dcdcdc;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
-    font-family: 'Iansui', cursive;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: #121212; /* dark background */
-    color: #dcdcdc; /* light grey text */
+  font-family: 'Noto Sans TC', 'Cinzel', sans-serif;
+  background-color: var(--wow-dark-blue);
+  color: var(--wow-light-text);
+  background-image: url('https://bnetcmsus-a.akamaihd.net/cms/template_resource/4XAFJ9PQBG3P1650917958643.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(10, 20, 35, 0.85);
+  z-index: -1;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--wow-gold);
 }
 
 h1 {
-    text-align: left;
-    color: #8fbc8f; /* mellow green */
-    margin-left: 20px;
-    font-size: 2.5rem; /* larger font size */
+  font-family: 'Cinzel', serif;
+  color: var(--wow-gold);
+  text-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
-p {
-    text-align: left;
-    color: #8fbc8f;
-    margin-left: 20px;
-    font-size: 1.5rem;
+.refresh-btn {
+  background-color: var(--wow-mid-blue);
+  color: var(--wow-gold);
+  border: 2px solid var(--wow-gold);
+  border-radius: 3px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+}
+
+.refresh-btn:hover {
+  background-color: var(--wow-light-blue);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+}
+
+.refresh-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--wow-gold);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 5px;
+  background: linear-gradient(to bottom, rgba(26, 54, 83, 0.8), rgba(10, 20, 35, 0.8));
+  border: 1px solid var(--wow-gold);
+  box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 1.2rem; /* larger font size */
-    text-align: left;
-    background-color: #1e1e1e; /* dark background */
-    border: 2px solid #444; /* dark grey border */
-    border-radius: 10px; /* rounded corners */
-}
-
-th, td {
-    padding: 15px; /* increase padding */
-    border-bottom: 1px solid #333; /* dark grey border */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 1.1rem;
 }
 
 th {
-    background-color: #8fbc8f; /* same mellow green as the heading */
-    color: #121212; /* dark text */
+  background-color: var(--wow-mid-blue);
+  color: var(--wow-gold);
+  padding: 15px;
+  font-family: 'Cinzel', serif;
+  border-bottom: 2px solid var(--wow-gold);
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
-tr:hover {
-    background-color: #8fbc8f; /* same mellow green as the heading */
-    color: #121212; /* dark text */
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--wow-stone);
 }
 
-td.zero {
-    background-color: #121212; /* dark background */
-    color: #a70303; /* red text */
+.player-row {
+  transition: background-color 0.2s ease;
 }
 
-@media (max-width: 600px) {
-    table {
-        font-size: 1rem; /* adjust font size for smaller screens */
-    }
+.player-row:hover {
+  background-color: rgba(45, 82, 124, 0.5);
+}
 
-    th, td {
-        padding: 10px; /* adjust padding for smaller screens */
-    }
+.ilvl-cell {
+  font-weight: bold;
+  color: var(--wow-light-gold);
+}
+
+.key-cell {
+  color: var(--wow-highlight);
+  font-weight: bold;
+}
+
+.runs-cell {
+  text-align: center;
+}
+
+.zero {
+  color: var(--wow-horde);
+  background-color: rgba(179, 0, 0, 0.2);
+}
+
+.loading-cell {
+  text-align: center;
+  padding: 40px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--wow-gold);
+  border-top-color: transparent;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  animation: spin 1.5s linear infinite;
+}
+
+.error-message {
+  background-color: rgba(179, 0, 0, 0.3);
+  border: 1px solid var(--wow-horde);
+  padding: 20px;
+  border-radius: 5px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.error-message p {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.retry-btn {
+  background-color: var(--wow-horde);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+}
+
+.retry-btn:hover {
+  background-color: #cc0000;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  th, td {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
 }

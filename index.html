@@ -7,189 +7,71 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <h1>Lazyraiders - v1.1.1</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>character</th>
-          <th>item level</th>
-          <th>tier piece(s)</th>
-          <th>本周最高M+</th>
-          <th>本周場次</th>
-          <th>上周場次</th>
-          <th>run date</th>
-        </tr>
-      </thead>
-      <tbody id="raiderio-data"></tbody>
-    </table>
+    <div id="app">
+      <div class="header">
+        <h1>Lazyraiders - v1.1.1</h1>
+        <button @click="refreshData" class="refresh-btn" title="重新整理資料">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9 9 9 0 0 1 6.39 2.61L21 9"></path>
+            <path d="M21 4v5h-5"></path>
+          </svg>
+          <span v-if="loading">載入中...</span>
+          <span v-else>重新整理</span>
+        </button>
+      </div>
+      
+      <div v-if="error" class="error-message">
+        <p>{{ error }}</p>
+        <button @click="refreshData" class="retry-btn">重試</button>
+      </div>
+      
+      <div class="table-container" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>角色名稱</th>
+              <th>裝等</th>
+              <th>T裝</th>
+              <th>本周最高M+</th>
+              <th>本周場次</th>
+              <th>上周場次</th>
+              <th>完成時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="loading" class="loading-row">
+              <td colspan="7" class="loading-cell">
+                <div class="loading-spinner"></div>
+                <div>正在擷取資料中...</div>
+              </td>
+            </tr>
+            <tr v-else v-for="player in players" :key="player.name" class="player-row">
+              <td>{{ player.name }}</td>
+              <td class="ilvl-cell">{{ player.ilvl }}</td>
+              <td>{{ player.tierPieces }}</td>
+              <td class="key-cell">{{ player.key }}</td>
+              <td :class="{'zero': player.currentRunsCount === 0, 'runs-cell': true}">{{ player.currentRunsCount }}</td>
+              <td :class="{'zero': player.previousRunsCount === 0, 'runs-cell': true}">{{ player.previousRunsCount }}</td>
+              <td>{{ player.time }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    <script>
-      // 配置
-      const config = {
-        playersFile: 'players.txt',
-        apiBaseUrl: 'https://raider.io/api/v1/characters/profile',
-        region: 'tw',
-        fields: 'mythic_plus_weekly_highest_level_runs,mythic_plus_previous_weekly_highest_level_runs,gear',
-        tierSlots: ['chest', 'hands', 'head', 'legs', 'shoulder'],
-        timezone: 'Asia/Taipei', // 台灣時區
-      };
-
-      // 解析玩家文本
-      const parsePlayersList = (text) => text.trim().split('\n');
-
-      // 從玩家字串中提取名稱和伺服器
-      const extractPlayerInfo = (playerString) => {
-        const [name, realm] = playerString.split('-');
-        return { name, realm };
-      };
-
-      // 建立API請求URL
-      const buildApiUrl = ({ name, realm }) => {
-        const url = new URL(config.apiBaseUrl);
-        url.searchParams.append('region', config.region);
-        url.searchParams.append('realm', realm);
-        url.searchParams.append('name', name);
-        url.searchParams.append('fields', config.fields);
-        return url.toString();
-      };
-
-      // 計算裝備的階層件數
-      const countTierPieces = (items) => {
-        if (!items) return {};
-
-        return config.tierSlots.reduce((acc, slot) => {
-          if (items[slot] && items[slot].tier && items[slot].tier !== 999) {
-            const tier = items[slot].tier;
-            acc[tier] = (acc[tier] || 0) + 1;
-          }
-          return acc;
-        }, {});
-      };
-
-      // 轉換UTC時間到台灣時區
-      const convertToTaiwanTime = (utcDateString) => {
-        if (!utcDateString) return 'n/a';
-
-        const date = new Date(utcDateString);
-        return new Intl.DateTimeFormat('zh-TW', {
-          timeZone: config.timezone,
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        }).format(date);
-      };
-
-      // 從API回應轉換為所需的玩家資料結構
-      const transformPlayerData = (json, playerName) => {
-        const currentRuns = json.mythic_plus_weekly_highest_level_runs || [];
-        const previousRuns = json.mythic_plus_previous_weekly_highest_level_runs || [];
-        const highestCurrentRun = currentRuns[0] || null;
-        const gear = json.gear || {};
-
-        return {
-          name: playerName,
-          ilvl: gear.item_level_equipped ? Math.round(gear.item_level_equipped) : null,
-          key: highestCurrentRun ? highestCurrentRun.mythic_level : 'n/a',
-          currentRunsCount: currentRuns.length >= 10 ? '10+' : currentRuns.length,
-          previousRunsCount: previousRuns.length >= 10 ? '10+' : previousRuns.length,
-          time: highestCurrentRun ? convertToTaiwanTime(highestCurrentRun.completed_at) : 'n/a',
-          tierPieces: countTierPieces(gear.items || {}),
-        };
-      };
-
-      // 格式化階層件數為顯示文字
-      const formatTierPieces = (tierPieces) => {
-        return (
-          Object.entries(tierPieces)
-            .map(([tier, count]) => `${tier} × ${count}`)
-            .join(', ') || 'n/a'
-        );
-      };
-
-      // 依照裝等排序玩家資料
-      const sortPlayersByItemLevel = (players) => {
-        return [...players].sort((a, b) => {
-          const aIlvl = a.ilvl !== null ? a.ilvl : Infinity;
-          const bIlvl = b.ilvl !== null ? b.ilvl : Infinity;
-          return aIlvl - bIlvl;
-        });
-      };
-
-      // 建立表格列
-      const createTableRow = (player) => {
-        const tr = document.createElement('tr');
-
-        const createCell = (content, className = '') => {
-          const td = document.createElement('td');
-          td.textContent = content;
-          if (className) {
-            td.className = className;
-          }
-          return td;
-        };
-
-        tr.appendChild(createCell(player.name));
-        tr.appendChild(createCell(player.ilvl !== null ? player.ilvl : 'n/a'));
-        tr.appendChild(createCell(formatTierPieces(player.tierPieces)));
-        tr.appendChild(createCell(player.key));
-        tr.appendChild(createCell(player.currentRunsCount, player.currentRunsCount === 0 ? 'zero' : ''));
-        tr.appendChild(createCell(player.previousRunsCount, player.previousRunsCount === 0 ? 'zero' : ''));
-        tr.appendChild(createCell(player.time));
-
-        return tr;
-      };
-
-      // 渲染表格
-      const renderTable = (players) => {
-        const tbody = document.getElementById('raiderio-data');
-        tbody.innerHTML = '';
-
-        players.map(createTableRow).forEach((row) => tbody.appendChild(row));
-      };
-
-      // 獲取玩家資料
-      const fetchPlayerData = async (player) => {
-        try {
-          const { name } = player;
-          const url = buildApiUrl(player);
-          const response = await fetch(url);
-          const json = await response.json();
-          return transformPlayerData(json, name);
-        } catch (error) {
-          console.error(`Error fetching data for player: ${player.name}`, error);
-          return null;
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
         }
-      };
+      }
+    </script>
 
-      // 主要流程控制函數
-      const main = async () => {
-        try {
-          // 1. 獲取玩家列表
-          const playersResponse = await fetch(config.playersFile);
-          const playersText = await playersResponse.text();
-          const playersList = parsePlayersList(playersText);
+    <script type="module">
+      import { createApp } from 'vue';
+      import MyComponent from './script.js';
 
-          // 2. 轉換為玩家物件
-          const players = playersList.map(extractPlayerInfo);
-
-          // 3. 獲取每個玩家的資料
-          const playersData = await Promise.all(players.map(fetchPlayerData));
-
-          // 4. 過濾無效資料
-          const validPlayersData = playersData.filter((player) => player !== null);
-
-          // 5. 排序並渲染
-          const sortedPlayersData = sortPlayersByItemLevel(validPlayersData);
-          renderTable(sortedPlayersData);
-        } catch (error) {
-          console.error('Error in main process:', error);
-        }
-      };
-
-      // 啟動應用程式
-      window.addEventListener('DOMContentLoaded', main);
+      createApp(MyComponent).mount('#app');
     </script>
   </body>
 </html>
