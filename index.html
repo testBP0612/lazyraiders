@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
   <body>
     <div id="app">
@@ -46,8 +47,8 @@
               </td>
             </tr>
             <tr v-else v-for="player in players" :key="player.name" class="player-row">
-              <td>{{ player.name }}</td>
-              <td class="ilvl-cell">{{ player.ilvl }}</td>
+              <td class="name-cell" :style="{ color: player.classColor }" :title="player.className">{{ player.name }}</td>
+              <td class="ilvl-cell" :style="{ color: player.ilvlColor }">{{ player.ilvl }}</td>
               <td>{{ player.tierPieces }}</td>
               <td class="key-cell">{{ player.key }}</td>
               <td :class="{'zero': player.currentRunsCount === 0, 'runs-cell': true}">{{ player.currentRunsCount }}</td>

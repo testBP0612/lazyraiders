@@ -13,6 +13,31 @@
   --wow-highlight: #00aeff;
   --wow-dark-text: #0a1423;
   --wow-light-text: #dcdcdc;
+  
+  /* 職業顏色變數 */
+  --class-warrior: #C79C6E;
+  --class-paladin: #F58CBA;
+  --class-hunter: #ABD473;
+  --class-rogue: #FFF569;
+  --class-priest: #FFFFFF;
+  --class-death-knight: #C41F3B;
+  --class-shaman: #0070DE;
+  --class-mage: #69CCF0;
+  --class-warlock: #9482C9;
+  --class-monk: #00FF96;
+  --class-druid: #FF7D0A;
+  --class-demon-hunter: #A330C9;
+  --class-evoker: #33937F;
+  --class-unknown: #CCCCCC;
+  
+  /* 裝等顏色變數 - 根據範例資料調整的顏色區間 */
+  --ilvl-poor: #9d9d9d;      /* 灰色 (垃圾): 0-599 */
+  --ilvl-common: #ffffff;    /* 白色 (普通): 600-619 */
+  --ilvl-uncommon: #1eff00;  /* 綠色 (優秀): 620-629 */
+  --ilvl-rare: #0070dd;      /* 藍色 (精良): 630-639 */
+  --ilvl-epic: #a335ee;      /* 紫色 (史詩): 640-649 */
+  --ilvl-legendary: #ff8000; /* 橙色 (傳說): 650-669 */
+  --ilvl-artifact: #e6cc80;  /* 金色 (神器): 670+ */
 }
 
 * {
@@ -96,6 +121,47 @@ h1 {
   stroke: var(--wow-gold);
 }
 
+/* 裝等顏色圖例 */
+.ilvl-legend {
+  background: rgba(26, 54, 83, 0.8);
+  border: 1px solid var(--wow-gold);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+}
+
+.legend-title {
+  color: var(--wow-gold);
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-family: 'Cinzel', serif;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.legend-text {
+  font-size: 0.9rem;
+}
+
 .table-container {
   overflow-x: auto;
   border-radius: 5px;
@@ -134,9 +200,14 @@ td {
   background-color: rgba(45, 82, 124, 0.5);
 }
 
+.name-cell {
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
 .ilvl-cell {
   font-weight: bold;
-  color: var(--wow-light-gold);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
 .key-cell {
@@ -217,5 +288,10 @@ td {
   th, td {
     padding: 10px;
     font-size: 0.9rem;
+  }
+  
+  .legend-items {
+    flex-direction: column;
+    gap: 8px;
   }
 }

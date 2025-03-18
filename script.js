@@ -10,6 +10,51 @@ const config = {
   timezone: 'Asia/Taipei', // 台灣時區
 };
 
+// WoW 職業名稱與 CSS 變數映射
+const wowClassCssVars = {
+  Warrior: 'var(--class-warrior)',
+  Paladin: 'var(--class-paladin)',
+  Hunter: 'var(--class-hunter)',
+  Rogue: 'var(--class-rogue)',
+  Priest: 'var(--class-priest)',
+  'Death Knight': 'var(--class-death-knight)',
+  DeathKnight: 'var(--class-death-knight)',
+  Shaman: 'var(--class-shaman)',
+  Mage: 'var(--class-mage)',
+  Warlock: 'var(--class-warlock)',
+  Monk: 'var(--class-monk)',
+  Druid: 'var(--class-druid)',
+  'Demon Hunter': 'var(--class-demon-hunter)',
+  DemonHunter: 'var(--class-demon-hunter)',
+  Evoker: 'var(--class-evoker)',
+};
+
+// WoW 職業名稱映射 (英文轉中文)
+const wowClassNames = {
+  Warrior: '戰士',
+  Paladin: '聖騎士',
+  Hunter: '獵人',
+  Rogue: '盜賊',
+  Priest: '牧師',
+  'Death Knight': '死亡騎士',
+  Shaman: '薩滿',
+  Mage: '法師',
+  Warlock: '術士',
+  Monk: '武僧',
+  Druid: '德魯伊',
+  'Demon Hunter': '惡魔獵人',
+  Evoker: '喚能師',
+};
+
+// 裝等顏色等級 (可自定義)
+const ilvlTiers = {
+  poor: { min: 0, max: 599, color: '#9d9d9d' },    // 灰色 (垃圾)
+  common: { min: 600, max: 619, color: '#ffffff' }, // 白色 (普通)
+  uncommon: { min: 620, max: 629, color: '#1eff00' }, // 綠色 (優秀)
+  rare: { min: 630, max: 639, color: '#0070dd' },    // 藍色 (精良)
+  epic: { min: 640, max: Infinity, color: '#a335ee' },    // 紫色 (史詩)
+};
+
 export default {
   setup() {
     const players = ref([]);
@@ -72,6 +117,30 @@ export default {
       );
     };
 
+    // 獲取職業顏色 (支援英文名稱，返回 CSS 變數)
+    const getClassColor = (className) => {
+      return wowClassCssVars[className] || 'var(--class-unknown, #CCCCCC)';
+    };
+
+    // 獲取職業名稱
+    const getClassName = (classId) => {
+      return wowClassNames[classId] || '未知';
+    };
+
+    // 獲取裝等顏色 (使用 CSS 變數)
+    const getIlvlColor = (ilvl) => {
+      if (ilvl === 'n/a') return 'var(--ilvl-poor)'; // 預設灰色
+      
+      const numIlvl = Number(ilvl);
+      for (const tier in ilvlTiers) {
+        const { min, max, color } = ilvlTiers[tier];
+        if (numIlvl >= min && numIlvl <= max) {
+          return color;
+        }
+      }
+      return 'var(--ilvl-common)'; // 預設白色
+    };
+
     // 從API回應轉換為所需的玩家資料結構
     const transformPlayerData = (json, playerName) => {
       const currentRuns = json.mythic_plus_weekly_highest_level_runs || [];
@@ -81,14 +150,26 @@ export default {
       const tierPieces = countTierPieces(gear.items || {});
       const formattedTierPieces = formatTierPieces(tierPieces);
 
+      // 從 API 獲取職業信息 (英文字串)
+      const className = json.class || '';
+      const classColor = getClassColor(className);
+      const localizedClassName = getClassName(className);
+
+      const ilvlValue = gear.item_level_equipped ? Math.round(gear.item_level_equipped) : 'n/a';
+      const ilvlColor = getIlvlColor(ilvlValue);
+
       return {
         name: playerName,
         ilvl: gear.item_level_equipped ? Math.round(gear.item_level_equipped) : null,
+				ilvlColor,
         key: highestCurrentRun ? highestCurrentRun.mythic_level : 'n/a',
         currentRunsCount: currentRuns.length >= 10 ? '10+' : currentRuns.length,
         previousRunsCount: previousRuns.length >= 10 ? '10+' : previousRuns.length,
         time: highestCurrentRun ? convertToTaiwanTime(highestCurrentRun.completed_at) : 'n/a',
         tierPieces: formattedTierPieces,
+				classColor,
+				localizedClassName,
+				className,
       };
     };
 
@@ -162,7 +243,7 @@ export default {
     return {
       loading,
       players,
-			error,
+      error,
       refreshData,
     };
   },
