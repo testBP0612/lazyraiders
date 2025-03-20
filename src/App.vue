@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <h1>Lazyraiders - v1.1.1</h1>
+    <h1>Lazyraiders</h1>
     <button @click="refreshData" class="refresh-btn" title="重新整理資料">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
         stroke="currentColor" stroke-width="2">
@@ -27,7 +27,7 @@
           <th>本周最高M+</th>
           <th>本周場次</th>
           <th>上周場次</th>
-          <th>完成時間</th>
+          <th>最後完成時間</th>
         </tr>
       </thead>
       <tbody>
@@ -39,12 +39,18 @@
         </tr>
         <tr v-else v-for="player in players" :key="player.name" class="player-row">
           <td class="name-cell" :style="{ color: player.classColor }" :title="player.localizedClassName">{{ player.name
-            }}</td>
+          }}</td>
           <td class="ilvl-cell" :style="{ color: player.ilvlColor }">{{ player.ilvl }}</td>
           <td>{{ player.tierPieces }}</td>
           <td class="key-cell">{{ player.key }}</td>
-          <td :class="{ 'zero': player.currentRunsCount === 0, 'runs-cell': true }">{{ player.currentRunsCount }}</td>
-          <td :class="{ 'zero': player.previousRunsCount === 0, 'runs-cell': true }">{{ player.previousRunsCount }}</td>
+          <td :class="{ 'zero': player.currentRunsCount === 0, 'runs-cell': true }">
+            {{ player.currentRunsCount }}
+            {{ player.currentRunsCount === 0 ? '🤡' : '' }}
+          </td>
+          <td :class="{ 'zero': player.previousRunsCount === 0, 'runs-cell': true }">
+            {{ player.previousRunsCount }}
+            {{ player.previousRunsCount === 0 ? '🤡' : '' }}
+          </td>
           <td>{{ player.time }}</td>
         </tr>
       </tbody>

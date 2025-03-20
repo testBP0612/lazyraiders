@@ -1,18 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap');
 
 :root {
-  --wow-dark-blue: #0a1423;
-  --wow-mid-blue: #1a3653;
-  --wow-light-blue: #2d527c;
-  --wow-gold: #c8aa6e;
-  --wow-light-gold: #f8d999;
-  --wow-stone: #596869;
-  --wow-dark-stone: #2d3436;
-  --wow-alliance: #0078ff;
-  --wow-horde: #b30000;
-  --wow-highlight: #00aeff;
-  --wow-dark-text: #0a1423;
-  --wow-light-text: #dcdcdc;
+  --wow-bg-dark: #0e0b08;  /* 更深的背景色 */
+  --wow-bg-panel: rgba(20, 16, 12, 0.95);  /* 面板背景色 */
+  --wow-gold-dark: #7a6229;  /* 深金色 */
+  --wow-gold: #c8aa6e;  /* 中金色 */
+  --wow-gold-light: #f8e6b3;  /* 亮金色 */
+  --wow-red-button: #4b1106;  /* 按鈕暗紅色 */
+  --wow-red-button-hover: #681708;  /* 按鈕暗紅色懸停 */
+  --wow-highlight: #ffe100;  /* 高亮黃色 */
+  --wow-text-light: #ffffff;  /* 亮文字 */
+  --wow-text-medium: #e0c59e;  /* 中等亮度文字 */
+  --wow-border-dark: #2e2418;  /* 深色邊框 */
+  --wow-horde: #b30000;  /* 部落紅 */
+  --wow-alliance: #0078ff;  /* 聯盟藍 */
   
   /* 職業顏色變數 */
   --class-warrior: #C79C6E;
@@ -30,7 +31,7 @@
   --class-evoker: #33937F;
   --class-unknown: #CCCCCC;
   
-  /* 裝等顏色變數 - 根據範例資料調整的顏色區間 */
+  /* 裝等顏色變數 */
   --ilvl-poor: #9d9d9d;      /* 灰色 (垃圾): 0-599 */
   --ilvl-common: #ffffff;    /* 白色 (普通): 600-619 */
   --ilvl-uncommon: #1eff00;  /* 綠色 (優秀): 620-629 */
@@ -48,8 +49,8 @@
 
 body {
   font-family: 'Noto Sans TC', 'Cinzel', sans-serif;
-  background-color: var(--wow-dark-blue);
-  color: var(--wow-light-text);
+  background-color: var(--wow-bg-dark);
+  color: var(--wow-text-light);
   background-image: url('https://bnetcmsus-a.akamaihd.net/cms/template_resource/4XAFJ9PQBG3P1650917958643.jpg');
   background-size: cover;
   background-position: center;
@@ -64,7 +65,7 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(10, 20, 35, 0.85);
+  background-color: rgba(10, 8, 6, 0.8);
   z-index: -1;
 }
 
@@ -82,7 +83,7 @@ body::before {
   align-items: center;
   padding: 15px 0;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--wow-gold);
+  border-bottom: 1px solid var(--wow-gold-dark);
 }
 
 h1 {
@@ -95,9 +96,9 @@ h1 {
 }
 
 .refresh-btn {
-  background-color: var(--wow-mid-blue);
-  color: var(--wow-gold);
-  border: 2px solid var(--wow-gold);
+  background-color: var(--wow-red-button);
+  color: var(--wow-gold-light);
+  border: 2px solid var(--wow-gold-dark);
   border-radius: 3px;
   padding: 8px 16px;
   display: flex;
@@ -110,25 +111,25 @@ h1 {
 }
 
 .refresh-btn:hover {
-  background-color: var(--wow-light-blue);
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+  background-color: var(--wow-red-button-hover);
+  border-color: var(--wow-gold);
+  box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
 }
 
 .refresh-btn svg {
   width: 18px;
   height: 18px;
-  stroke: var(--wow-gold);
+  stroke: var(--wow-gold-light);
 }
 
 /* 裝等顏色圖例 */
 .ilvl-legend {
-  background: rgba(26, 54, 83, 0.8);
-  border: 1px solid var(--wow-gold);
-  border-radius: 5px;
+  background: var(--wow-bg-panel);
+  border: 1px solid var(--wow-gold-dark);
+  border-radius: 3px;
   margin-bottom: 20px;
   padding: 15px;
-  box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .legend-title {
@@ -154,20 +155,21 @@ h1 {
   display: inline-block;
   width: 15px;
   height: 15px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  border: 1px solid var(--wow-border-dark);
 }
 
 .legend-text {
   font-size: 0.9rem;
+  color: var(--wow-text-medium);
 }
 
 .table-container {
   overflow-x: auto;
-  border-radius: 5px;
-  background: linear-gradient(to bottom, rgba(26, 54, 83, 0.8), rgba(10, 20, 35, 0.8));
-  border: 1px solid var(--wow-gold);
-  box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
+  border-radius: 3px;
+  background: var(--wow-bg-panel);
+  border: 1px solid var(--wow-gold-dark);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 table {
@@ -178,18 +180,19 @@ table {
 }
 
 th {
-  background-color: var(--wow-mid-blue);
+  background: linear-gradient(to bottom, #3d2f1b, #211909);
   color: var(--wow-gold);
-  padding: 15px;
+  padding: 12px 15px;
   font-family: 'Cinzel', serif;
-  border-bottom: 2px solid var(--wow-gold);
+  border-bottom: 2px solid var(--wow-gold-dark);
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 td {
-  padding: 12px 15px;
-  border-bottom: 1px solid var(--wow-stone);
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--wow-border-dark);
+  color: var(--wow-text-medium);
 }
 
 .player-row {
@@ -197,7 +200,15 @@ td {
 }
 
 .player-row:hover {
-  background-color: rgba(45, 82, 124, 0.5);
+  background: linear-gradient(to bottom, rgba(61, 47, 27, 0.5), rgba(33, 25, 9, 0.5));
+}
+
+.player-row:nth-child(even) {
+  background-color: rgba(40, 30, 20, 0.5);
+}
+
+.player-row:nth-child(odd) {
+  background-color: rgba(30, 25, 15, 0.5);
 }
 
 .name-cell {
@@ -212,6 +223,7 @@ td {
 
 .key-cell {
   color: var(--wow-highlight);
+  text-align: center;
   font-weight: bold;
 }
 
@@ -240,32 +252,37 @@ td {
 }
 
 .error-message {
-  background-color: rgba(179, 0, 0, 0.3);
+  background: linear-gradient(to bottom, rgba(75, 17, 6, 0.8), rgba(50, 10, 5, 0.8));
   border: 1px solid var(--wow-horde);
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 3px;
   margin: 20px 0;
   text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .error-message p {
   margin-bottom: 15px;
   font-size: 1.2rem;
+  color: var(--wow-text-light);
 }
 
 .retry-btn {
-  background-color: var(--wow-horde);
-  color: white;
-  border: none;
+  background-color: var(--wow-red-button);
+  color: var(--wow-gold-light);
+  border: 1px solid var(--wow-gold-dark);
   padding: 8px 16px;
   border-radius: 3px;
   cursor: pointer;
   font-family: 'Cinzel', serif;
   font-weight: bold;
+  transition: all 0.2s ease;
 }
 
 .retry-btn:hover {
-  background-color: #cc0000;
+  background-color: var(--wow-red-button-hover);
+  border-color: var(--wow-gold);
+  box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
 }
 
 @keyframes spin {
@@ -286,7 +303,7 @@ td {
   }
   
   th, td {
-    padding: 10px;
+    padding: 8px 10px;
     font-size: 0.9rem;
   }
   
