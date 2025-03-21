@@ -158,8 +158,8 @@ const usePlayerData = () => {
     const ilvlValue = gear?.item_level_equipped ? Math.round(gear?.item_level_equipped ?? 0) : 'n/a';
     const ilvlColor = getIlvlColor(ilvlValue);
 
-		const encodeName = encodeURIComponent(playerName);
-		const encodeRealm = encodeURIComponent(realm);
+		const encodeName = encodeURIComponent(playerName.trim());
+		const encodeRealm = encodeURIComponent(realm.trim());
 
 		const wclUrl = `https://${config.region}.warcraftlogs.com/character/${config.region}/${encodeRealm}/${encodeName}`;
 		const raiderIoUrl = `https://raider.io/characters/${config.region}/${encodeRealm}/${encodeName}`;

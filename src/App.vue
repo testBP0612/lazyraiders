@@ -33,7 +33,7 @@
       </thead>
       <tbody>
         <tr v-if="loading" class="loading-row">
-          <td colspan="7" class="loading-cell">
+          <td colspan="8" class="loading-cell">
             <div class="loading-spinner"></div>
             <div>正在擷取資料中...</div>
           </td>
@@ -55,10 +55,10 @@
           <td>{{ player.time }}</td>
           <td class="links-cell">
             <a :href="player.wclUrl" target="_blank" class="wcl-link" title="WarcraftLogs">
-              <i class="fas fa-chart-line"></i>
+              <img src="/images/wcl-icon.png" alt="WCL" class="site-icon">
             </a>
             <a :href="player.raiderIoUrl" target="_blank" class="rio-link" title="Raider.io">
-              <i class="fas fa-trophy"></i>
+              <img src="/images/io-icon.webp" alt="RIO" class="site-icon">
             </a>
           </td>
         </tr>

@@ -285,6 +285,41 @@ td {
   box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
 }
 
+.links-cell {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.wcl-link, .rio-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--wow-text-light);
+  transition: all 0.2s ease;
+}
+
+.wcl-link img, .rio-link img {
+  width: 100%;
+  height: 100%;
+}
+
+.wcl-link:hover, .rio-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.wcl-link:hover {
+  background-color: var(--wow-red-button-hover);
+}
+
+.rio-link:hover {
+  background-color: var(--wow-alliance);
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
