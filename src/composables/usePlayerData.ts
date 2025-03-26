@@ -1,5 +1,15 @@
 import { ref, onMounted } from 'vue';
-import type { Player, PlayerInfo, TierPieces, WowClassCssVars, WowClassNames, IlvlTiers, ApiResponse } from '../types';
+import type {
+  Player,
+  PlayerInfo,
+  TierPieces,
+  WowClassCssVars,
+  WowClassNames,
+  IlvlTiers,
+  PlayerProfile,
+  Item,
+  ItemSlots,
+} from '../types';
 
 // 配置
 const config = {
@@ -13,21 +23,21 @@ const config = {
 
 // WoW 職業名稱與 CSS 變數映射
 const wowClassCssVars: WowClassCssVars = {
-  Warrior: 'var(--class-warrior)',
-  Paladin: 'var(--class-paladin)',
-  Hunter: 'var(--class-hunter)',
-  Rogue: 'var(--class-rogue)',
-  Priest: 'var(--class-priest)',
-  'Death Knight': 'var(--class-death-knight)',
-  DeathKnight: 'var(--class-death-knight)',
-  Shaman: 'var(--class-shaman)',
-  Mage: 'var(--class-mage)',
-  Warlock: 'var(--class-warlock)',
-  Monk: 'var(--class-monk)',
-  Druid: 'var(--class-druid)',
-  'Demon Hunter': 'var(--class-demon-hunter)',
-  DemonHunter: 'var(--class-demon-hunter)',
-  Evoker: 'var(--class-evoker)',
+  Warrior: 'var(--color-class-warrior)',
+  Paladin: 'var(--color-class-paladin)',
+  Hunter: 'var(--color-class-hunter)',
+  Rogue: 'var(--color-class-rogue)',
+  Priest: 'var(--color-class-priest)',
+  'Death Knight': 'var(--color-class-death-knight)',
+  DeathKnight: 'var(--color-class-death-knight)',
+  Shaman: 'var(--color-class-shaman)',
+  Mage: 'var(--color-class-mage)',
+  Warlock: 'var(--color-class-warlock)',
+  Monk: 'var(--color-class-monk)',
+  Druid: 'var(--color-class-druid)',
+  'Demon Hunter': 'var(--color-class-demon-hunter)',
+  DemonHunter: 'var(--color-class-demon-hunter)',
+  Evoker: 'var(--color-class-evoker)',
 };
 
 // WoW 職業名稱映射 (英文轉中文)
@@ -49,11 +59,36 @@ const wowClassNames: WowClassNames = {
 
 // 裝等顏色等級 (可自定義)
 const ilvlTiers: IlvlTiers = {
-  poor: { min: 0, max: 599, color: 'var(--ilvl-poor)' },
-  common: { min: 600, max: 619, color: 'var(--ilvl-common)' },
-  uncommon: { min: 620, max: 629, color: 'var(--ilvl-uncommon)' },
-  rare: { min: 630, max: 639, color: 'var(--ilvl-rare)' },
-  epic: { min: 640, max: Infinity, color: 'var(--ilvl-epic)' },
+  poor: { min: 0, max: 599, color: 'var(--color-ilvl-poor)' },
+  common: { min: 600, max: 619, color: 'var(--color-ilvl-common)' },
+  uncommon: { min: 620, max: 629, color: 'var(--color-ilvl-uncommon)' },
+  rare: { min: 630, max: 639, color: 'var(--color-ilvl-rare)' },
+  epic: { min: 640, max: Infinity, color: 'var(--color-ilvl-epic)' },
+};
+
+// 可以附魔的裝備部位
+const enchantableSlots = ['back', 'chest', 'wrist', 'legs', 'finger1', 'finger2', 'mainhand'];
+
+// 可以插寶石的裝備部位
+const socketableSlots = ['neck', 'finger1', 'finger2'];
+
+const translateSlotNameMap: Record<string, string> = {
+  head: '頭部',
+  neck: '項鍊',
+  shoulder: '肩膀',
+  back: '披風',
+  chest: '胸甲',
+  waist: '腰帶',
+  wrist: '護腕',
+  hands: '手套',
+  legs: '腿部',
+  feet: '鞋子',
+  finger1: '戒指 1',
+  finger2: '戒指 2',
+  trinket1: '飾品 1',
+  trinket2: '飾品 2',
+  mainhand: '主手武器',
+  offhand: '副手武器',
 };
 
 const usePlayerData = () => {
@@ -141,12 +176,38 @@ const usePlayerData = () => {
     return 'var(--ilvl-common)'; // 預設白色
   };
 
+  // 檢查缺少的附魔和寶石
+  const checkMissingEnchantsAndGems = (items: ItemSlots) => {
+    const missingEnchants: string[] = [];
+    const missingGems: string[] = [];
+
+    for (const slotName of enchantableSlots) {
+      const slot = slotName as keyof ItemSlots;
+      const item = items[slot];
+
+      if (item && !item.enchants?.length) {
+        missingEnchants.push(translateSlotNameMap[slot]);
+      }
+    }
+
+    for (const slotName of socketableSlots) {
+      const slot = slotName as keyof ItemSlots;
+      const item = items[slot];
+
+      if (item && !item.gems?.length) {
+        missingGems.push(translateSlotNameMap[slot]);
+      }
+    }
+
+    return { missingEnchants, missingGems };
+  };
+
   // 從API回應轉換為所需的玩家資料結構
-  const transformPlayerData = (json: ApiResponse, playerName: string, realm: string): Player => {
+  const transformPlayerData = (json: PlayerProfile, playerName: string, realm: string): Player => {
     const currentRuns = json.mythic_plus_weekly_highest_level_runs || [];
     const previousRuns = json.mythic_plus_previous_weekly_highest_level_runs || [];
     const highestCurrentRun = currentRuns[0] || null;
-    const gear: ApiResponse['gear'] = json.gear;
+    const gear: PlayerProfile['gear'] = json.gear;
     const tierPieces = countTierPieces(gear?.items);
     const formattedTierPieces = formatTierPieces(tierPieces);
 
@@ -158,15 +219,33 @@ const usePlayerData = () => {
     const ilvlValue = gear?.item_level_equipped ? Math.round(gear?.item_level_equipped ?? 0) : 'n/a';
     const ilvlColor = getIlvlColor(ilvlValue);
 
-		const encodeName = encodeURIComponent(playerName.trim());
-		const encodeRealm = encodeURIComponent(realm.trim());
+    const encodeName = encodeURIComponent(playerName.trim());
+    const encodeRealm = encodeURIComponent(realm.trim());
 
-		const wclUrl = `https://${config.region}.warcraftlogs.com/character/${config.region}/${encodeRealm}/${encodeName}`;
-		const raiderIoUrl = `https://raider.io/characters/${config.region}/${encodeRealm}/${encodeName}`;
+    const wclUrl = `https://${config.region}.warcraftlogs.com/character/${config.region}/${encodeRealm}/${encodeName}`;
+    const raiderIoUrl = `https://raider.io/characters/${config.region}/${encodeRealm}/${encodeName}`;
+
+    // 檢查缺少的附魔和寶石
+    const { missingEnchants, missingGems } = checkMissingEnchantsAndGems(gear?.items || {});
+
+    // 構建提示文本
+    let enhancementWarning = '';
+    if (missingEnchants.length > 0) {
+      enhancementWarning += `缺少附魔: ${missingEnchants.join(', ')}`;
+    }
+
+    // 如果同時缺少附魔和寶石，添加換行
+    if (missingEnchants.length > 0 && missingGems.length > 0) {
+      enhancementWarning += '\n';
+    }
+
+    if (missingGems.length > 0) {
+      enhancementWarning += `缺少寶石: ${missingGems.join(', ')}`;
+    }
 
     return {
       name: playerName,
-			realm,
+      realm,
       ilvl: gear?.item_level_equipped ? Math.round(gear?.item_level_equipped ?? 0) : null,
       ilvlColor,
       key: highestCurrentRun ? highestCurrentRun.mythic_level : 'n/a',
@@ -177,8 +256,9 @@ const usePlayerData = () => {
       classColor,
       localizedClassName,
       className,
-			wclUrl,
-			raiderIoUrl,
+      wclUrl,
+      raiderIoUrl,
+      enhancementWarning,
     };
   };
 
@@ -197,7 +277,7 @@ const usePlayerData = () => {
       const { name, realm } = player;
       const url = buildApiUrl(player);
       const response = await fetch(url);
-      const json = (await response.json()) as ApiResponse;
+      const json = (await response.json()) as PlayerProfile;
       return transformPlayerData(json, name, realm);
     } catch (error) {
       console.error(`Error fetching data for player: ${player.name}`, error);
