@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  /* WoW 主題顏色 */
+  --color-wow-bg-dark: #0e0b08;
+  --color-wow-bg-panel: rgba(20, 16, 12, 0.95);
+  --color-wow-gold-dark: #7a6229;
+  --color-wow-gold: #c8aa6e;
+  --color-wow-gold-light: #f8e6b3;
+  --color-wow-red-button: #4b1106;
+  --color-wow-red-button-hover: #681708;
+  --color-wow-highlight: #ffe100;
+  --color-wow-text-light: #ffffff;
+  --color-wow-text-medium: #e0c59e;
+  --color-wow-border-dark: #2e2418;
+  --color-wow-horde: #b30000;
+  --color-wow-alliance: #0078ff;
+  
+  /* 職業顏色 */
+  --color-class-warrior: #C79C6E;
+  --color-class-paladin: #F58CBA;
+  --color-class-hunter: #ABD473;
+  --color-class-rogue: #FFF569;
+  --color-class-priest: #FFFFFF;
+  --color-class-death-knight: #C41F3B;
+  --color-class-shaman: #0070DE;
+  --color-class-mage: #69CCF0;
+  --color-class-warlock: #9482C9;
+  --color-class-monk: #00FF96;
+  --color-class-druid: #FF7D0A;
+  --color-class-demon-hunter: #A330C9;
+  --color-class-evoker: #33937F;
+  --color-class-unknown: #CCCCCC;
+  
+  /* 裝等顏色 */
+  --color-ilvl-poor: #9d9d9d;
+  --color-ilvl-common: #ffffff;
+  --color-ilvl-uncommon: #1eff00;
+  --color-ilvl-rare: #0070dd;
+  --color-ilvl-epic: #a335ee;
+  --color-ilvl-legendary: #ff8000;
+  --color-ilvl-artifact: #e6cc80;
+  
+  /* 字體 */
+  --font-wow: 'Noto Sans TC', 'Cinzel', sans-serif;
+  --font-wow-title: 'Cinzel', serif;
+  
+  /* 陰影 */
+  --shadow-wow-text: 0 0 10px rgba(200, 170, 110, 0.5);
+  --shadow-wow-box: 0 0 15px rgba(0, 0, 0, 0.5);
+  --shadow-wow-btn-hover: 0 0 10px rgba(200, 170, 110, 0.3);
+}
+
+body {
+  font-family: 'Noto Sans TC', 'Cinzel', sans-serif;
+  background-color: var(--color-wow-bg-dark);
+  color: var(--color-wow-text-light);
+  background-image: url('https://bnetcmsus-a.akamaihd.net/cms/template_resource/4XAFJ9PQBG3P1650917958643.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(10, 8, 6, 0.8);
+  z-index: -1;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
